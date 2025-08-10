@@ -22,15 +22,29 @@ if (!empty($currentCity)) {
             $noCity = false;
             $filename = $city['filename'];
             break;
-        } else {
-            $noCity = true;
         }
     }
 }
 
 //if filename is not empty, then aggregate the data
 if (!empty($filename)) {
-    $cityData = json_decode(file_get_contents('compress.bzip2://' . __DIR__ . '/data/' . $filename), true)['results'];
+    $results = json_decode(file_get_contents('compress.bzip2://' . __DIR__ . '/data/' . $filename), true)['results'];
+
+    $stats = [];
+
+    foreach ($results as $result) {
+        if ($result['parameter'] !== 'pm25') {
+            continue;
+        }
+
+        $month = substr($result['date']['local'], 0, 7);
+
+        if (!isset($stats[$month])) {
+            $stats[$month] = [];
+        }
+
+        $stats[$month][] = $result['value'];
+    }
 }
 
 ?>
@@ -46,6 +60,17 @@ include_once __DIR__ . '/views/header.inc.php';
 <?php elseif ($noCity): ?>
     <p>Data is not availble for the current city: <strong><?php echo $currentCity; ?></strong></p>
 
+<?php else: ?>
+    <?php if (!empty($stats)): ?>
+        <table>
+            <?php foreach ($stats as $month => $measurments): ?>
+                <tr>
+                    <th><?php echo e($month); ?></th>
+                    <td><?php echo e(array_sum($measurments) / count($measurments)); ?></td>
+                </tr>
+            <?php endforeach; ?>
+        </table>
+    <?php endif; ?>
 <?php endif; ?>
 
 
