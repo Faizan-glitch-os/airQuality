@@ -3,10 +3,10 @@ include_once './views/header.inc.php';
 
 include_once('./inc/functions.inc.php');
 ?>
+
 <?php
 $cities = json_decode(file_get_contents(__DIR__ . '/data/index.json'), true);
 ?>
-
 
 <ul>
     <?php foreach ($cities as $city): ?>
@@ -17,7 +17,6 @@ $cities = json_decode(file_get_contents(__DIR__ . '/data/index.json'), true);
            (<?php echo e($city['flag']) ?>)
             </li>
         </a>
-       
     <?php endforeach; ?>
 </ul>
 
